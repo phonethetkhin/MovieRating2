@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">CodigoCodeManagement</string>
+    <string name="connection_error_message">No internet connection! Please check your internet connection.</string>
+
+</resources>
