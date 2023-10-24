@@ -21,10 +21,10 @@ interface MoviesDao {
     @Query("SELECT * FROM tbl_movies")
     suspend fun getAllMovies(): List<MoviesEntity>
 
-    @Query("SELECT * FROM tbl_movies WHERE isPopularMovie = 1")
+    @Query("SELECT m.title,m.posterPath,m.voteAverage,m.isPopularMovie,m.isUpcomingMovie,md.isFav,m.id FROM tbl_movies AS m INNER JOIN tbl_movies_detail AS md ON m.id == md.id WHERE isPopularMovie = 1")
     suspend fun getAllPopularMovies(): List<MoviesEntity>
 
-    @Query("SELECT * FROM tbl_movies WHERE isUpcomingMovie = 1")
+    @Query("SELECT m.title,m.posterPath,m.voteAverage,m.isPopularMovie,m.isUpcomingMovie,md.isFav,m.id FROM tbl_movies AS m INNER JOIN tbl_movies_detail AS md ON m.id == md.id WHERE isUpcomingMovie = 1")
     suspend fun getAllUpcomingMovies(): List<MoviesEntity>
 
 }

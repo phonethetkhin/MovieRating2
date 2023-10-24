@@ -22,13 +22,6 @@ class DetailViewModel @Inject constructor(
     private val _uiStates = MutableStateFlow(DetailUIStates())
     val uiStates = _uiStates.asStateFlow()
 
-  /*  fun toggleFav() {
-        _uiStates.update { currentState ->
-            currentState.copy(
-                detailResponseModel = currentState.detailResponseModel!!.copy(isFav = !currentState.detailResponseModel.isFav)
-            )
-        }
-    }*/
 
     fun getMovieDetail(movieId: Int) {
         viewModelScope.launch {
@@ -38,6 +31,14 @@ class DetailViewModel @Inject constructor(
             Log.e("DetailResponseModel3", movieDetail.toString())
 
             _uiStates.update { it.copy(detailResponseModel = movieDetail) }
+        }
+    }
+
+    fun toggleIsFav(movieId: Int, isFav: Boolean) {
+        viewModelScope.launch {
+            repository.updateIsFav(movieId, isFav)
+            _uiStates.value.detailResponseModel?.isFav = isFav
+            _uiStates.update { it.copy(recompose = !_uiStates.value.recompose) }
         }
     }
 

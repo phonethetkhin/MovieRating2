@@ -56,29 +56,25 @@ class HomeViewModel @Inject constructor(
         return result
     }
 
-    /* fun toggleFav(movieId: Int) {
-         val movieModel = _uiStates.value.popularList.find { it.id == movieId }
-         val movieModel3 = _uiStates.value.upcomingList.find { it.id == movieId }
 
-         _uiStates.update {
-             it.copy(popularList = _uiStates.value.popularList.mapIndexed { index, details ->
-                 if (_uiStates.value.popularList.indexOf(movieModel) == index) details.copy(
-                     isFav = !details.isFav
-                 )
-                 else details
-             } as ArrayList<MoviesEntity>)
-         }
+    fun toggleIsFav(moviesEntity: MoviesEntity) {
+        _uiStates.update {
+            it.copy(popularList = _uiStates.value.popularList.mapIndexed { index, details ->
+                if (_uiStates.value.popularList.indexOf(moviesEntity) == index) details.copy(
+                    isFav = !details.isFav
+                )
+                else details
+            } as ArrayList<MoviesEntity>,
+                upcomingList = _uiStates.value.upcomingList.mapIndexed { index, details ->
+                    if (_uiStates.value.upcomingList.indexOf(moviesEntity) == index) details.copy(
+                        isFav = !details.isFav
+                    )
+                    else details
+                } as ArrayList<MoviesEntity>
+            )
+        }
+    }
 
-         _uiStates.update {
-             it.copy(upcomingList = _uiStates.value.upcomingList.mapIndexed { index, details ->
-                 if (_uiStates.value.upcomingList.indexOf(movieModel3) == index) details.copy(
-                     isFav = !details.isFav
-                 )
-                 else details
-             } as ArrayList<MoviesEntity>)
-         }
-
-     }*/
 
     fun checkConnection(
     ) {
@@ -116,6 +112,47 @@ class HomeViewModel @Inject constructor(
             } else {
 
                 fetchMoviesListFromDB()
+            }
+        }
+    }
+
+    fun onRefresh() {
+        viewModelScope.launch {
+            _uiStates.update { it.copy(refreshing = true) }
+            reloadData()
+
+        }
+    }
+
+    fun reloadData() {
+        viewModelScope.launch {
+            val isConnected = isInternetAvailable(application)
+            if (isConnected) {
+                Log.e("Sequence", "1")
+                withContext(Dispatchers.IO) { getPopularMovies() }
+                Log.e("Sequence", "5")
+
+                withContext(Dispatchers.IO) { getUpcomingList() }
+                Log.e("Sequence", "9")
+
+                val allMovies = repository.getAllMovies()
+                Log.e("Sequence", "10")
+
+                allMovies.forEach {
+                    Log.e("Sequence", "11")
+
+                    withContext(Dispatchers.IO) { getMovieDetail(it.id) }
+                    Log.e("Sequence", "14")
+
+                }
+                Log.e("Sequence", "15")
+                fetchMoviesListFromDB()
+                dataStore.saveIsFirstLaunch(false)
+                _uiStates.update { it.copy(refreshing = false) }
+
+
+            } else {
+                toggleIsShowNoConnectionDialog(true)
             }
         }
     }

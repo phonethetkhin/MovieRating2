@@ -9,16 +9,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.ptk.codigocodemanagement.ui.screen.DetailScreen
 import com.ptk.codigocodemanagement.ui.screen.HomeScreen
+import com.ptk.codigocodemanagement.viewmodel.DetailViewModel
 import com.ptk.codigocodemanagement.viewmodel.HomeViewModel
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    detailViewModel: DetailViewModel = hiltViewModel()
 ) {
     NavHost(navController = navController, startDestination = Routes.HomeScreen.route) {
         composable(route = Routes.HomeScreen.route) {
-            HomeScreen(navController, homeViewModel)
+            HomeScreen(navController, homeViewModel, detailViewModel)
         }
 
         composable(
@@ -27,7 +29,7 @@ fun NavGraph(
                 navArgument("movieId") {
                     type = NavType.IntType
                 },
-                )
+            )
         ) { nav ->
             val movieId = nav.arguments?.getInt("movieId")!!
             DetailScreen(navController, movieId, homeViewModel)

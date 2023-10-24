@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.ptk.codigocodemanagement.R
 import com.ptk.codigocodemanagement.db.entity.MoviesEntity
 import com.ptk.codigocodemanagement.ui.ui_resource.composables.AnimatedShimmer
@@ -40,9 +42,11 @@ import com.ptk.codigocodemanagement.ui.ui_resource.navigation.Routes
 import com.ptk.codigocodemanagement.ui.ui_resource.theme.LightBlue
 import com.ptk.codigocodemanagement.ui.ui_states.HomeUIStates
 import com.ptk.codigocodemanagement.util.Constants
+import com.ptk.codigocodemanagement.viewmodel.DetailViewModel
 import com.ptk.codigocodemanagement.viewmodel.HomeViewModel
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
+import kotlinx.coroutines.delay
 
 
 //UIs
@@ -60,13 +64,14 @@ import ir.kaaveh.sdpcompose.ssp
 fun HomeScreen(
     navController: NavController,
     homeViewModel: HomeViewModel,
+    detailViewModel: DetailViewModel,
 ) {
     val uiStates by homeViewModel.uiStates.collectAsState()
 
     LaunchedEffect(key1 = "") {
         homeViewModel.checkConnection()
     }
-
+   
     NoConnectionDialog(
         showDialog = uiStates.isShowNoConnectionDialog,
         onDismissRequest = { homeViewModel.toggleIsShowNoConnectionDialog(false) }) {
@@ -74,49 +79,53 @@ fun HomeScreen(
 
     }
 
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = LightBlue),
-                title = {
-                    Text(
-                        "Home",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.ssp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 16.sdp),
-                        textAlign = TextAlign.Center
-                    )
-                },
-                navigationIcon = {
-
-                }
-            )
-        }
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = uiStates.refreshing),
+        onRefresh = { homeViewModel.onRefresh() },
     ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = LightBlue),
+                    title = {
+                        Text(
+                            "Home",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.ssp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 16.sdp),
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    navigationIcon = {
 
-        if (!uiStates.isShowNoConnectionDialog) {
-            if (uiStates.popularList.isNotEmpty() && uiStates.upcomingList.isNotEmpty()) {
-                HomeScreenContent(
-                    navController,
-                    it.calculateTopPadding().value,
-                    uiStates,
-                    homeViewModel,
+                    }
                 )
-            } else {
-                Column(modifier = Modifier.padding(top = it.calculateTopPadding().value.dp)) {
-                    repeat(7) {
-                        AnimatedShimmer()
+            }
+        ) {
+
+            if (!uiStates.isShowNoConnectionDialog) {
+                if (uiStates.popularList.isNotEmpty() && uiStates.upcomingList.isNotEmpty()) {
+                    HomeScreenContent(
+                        navController,
+                        it.calculateTopPadding().value,
+                        uiStates,
+                        homeViewModel,
+                        detailViewModel
+                    )
+                } else {
+                    Column(modifier = Modifier.padding(top = it.calculateTopPadding().value.dp)) {
+                        repeat(7) {
+                            AnimatedShimmer()
+                        }
                     }
                 }
             }
+
         }
-
     }
-
 }
 
 @Composable
@@ -125,6 +134,7 @@ fun HomeScreenContent(
     topMargin: Float,
     uiStates: HomeUIStates,
     homeViewModel: HomeViewModel,
+    detailViewModel: DetailViewModel
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.Center,
@@ -139,6 +149,7 @@ fun HomeScreenContent(
                 uiStates.popularList,
                 navController,
                 homeViewModel,
+                detailViewModel,
                 uiStates,
             )
         }
@@ -149,6 +160,7 @@ fun HomeScreenContent(
                 uiStates.upcomingList,
                 navController,
                 homeViewModel,
+                detailViewModel,
                 uiStates,
             )
         }
@@ -163,6 +175,7 @@ fun RecommendedMoviesUI(
     list: ArrayList<MoviesEntity>,
     navController: NavController,
     homeViewModel: HomeViewModel,
+    detailViewModel: DetailViewModel,
     uiStates: HomeUIStates,
 ) {
     Column(
@@ -177,7 +190,7 @@ fun RecommendedMoviesUI(
             modifier = Modifier.padding(bottom = 16.sdp)
         )
 
-        MovieList(movies = list, navController, homeViewModel, uiStates)
+        MovieList(movies = list, navController, homeViewModel, detailViewModel, uiStates)
     }
 }
 
@@ -186,6 +199,7 @@ fun MovieList(
     movies: ArrayList<MoviesEntity>,
     navController: NavController,
     homeViewModel: HomeViewModel,
+    detailViewModel: DetailViewModel,
     uiStates: HomeUIStates,
 ) {
     LazyRow(
@@ -196,6 +210,7 @@ fun MovieList(
                 movie = movie,
                 navController,
                 homeViewModel,
+                detailViewModel,
                 uiStates
             )
         }
@@ -207,6 +222,7 @@ fun MovieListItem(
     movie: MoviesEntity,
     navController: NavController,
     homeViewModel: HomeViewModel,
+    detailViewModel: DetailViewModel,
     uiStates: HomeUIStates,
 ) {
     Card(
@@ -271,7 +287,10 @@ fun MovieListItem(
                     tint = if (movie.isFav) Color.Red else Color.White,
                     modifier = Modifier
                         .size(20.dp)
-                        .clickable { /*homeViewModel.toggleFav(movie.id!!)*/ }
+                        .clickable {
+                            homeViewModel.toggleIsFav(movie)
+                            detailViewModel.toggleIsFav(movie.id, !movie.isFav)
+                        }
                 )
 
                 Spacer(modifier = Modifier.width(4.dp))

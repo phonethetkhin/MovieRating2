@@ -15,5 +15,8 @@ interface MoviesDetailDao {
     @Query("SELECT * FROM tbl_movies_detail WHERE id = :movieId")
     suspend fun getMovieDetail(movieId: Int): MovieDetailEntity
 
+    @Query("UPDATE tbl_movies_detail SET isFav = :isFav WHERE id=:movieId")
+    suspend fun updateIsFav(movieId: Int, isFav: Boolean)
+
 
 }

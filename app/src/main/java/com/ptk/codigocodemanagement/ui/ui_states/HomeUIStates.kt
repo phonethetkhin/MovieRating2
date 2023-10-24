@@ -11,6 +11,8 @@ data class HomeUIStates(
     val errorMessage: String = "",
 
     val popularList: ArrayList<MoviesEntity> = arrayListOf(),
-    val upcomingList: ArrayList<MoviesEntity> = arrayListOf()
+    val upcomingList: ArrayList<MoviesEntity> = arrayListOf(),
 
-)
+    var refreshing: Boolean = false,
+
+    )

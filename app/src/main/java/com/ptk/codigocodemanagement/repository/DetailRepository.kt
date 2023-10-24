@@ -14,5 +14,8 @@ class DetailRepository @Inject constructor(
 
     suspend fun getMovieDetail(movieId: Int) = moviesDetailDao.getMovieDetail(movieId)
 
+    suspend fun updateIsFav(movieId: Int, isFav: Boolean) =
+        moviesDetailDao.updateIsFav(movieId, isFav)
+
 
 }

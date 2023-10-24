@@ -11,4 +11,6 @@ data class DetailUIStates(
 
     val detailResponseModel: MovieDetailEntity? = null,
 
+    val recompose: Boolean = false,
+
     )
