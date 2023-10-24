@@ -271,7 +271,7 @@ class HomeViewModel @Inject constructor(
                     movieDetailEntity.id = movieDetailData.id ?: 0
                     movieDetailEntity.title = movieDetailData.title
                     movieDetailEntity.backdropPath = movieDetailData.backdropPath
-                    movieDetailEntity.genres = movieDetailData.genres?.map { movieDetailData.title }
+                    movieDetailEntity.genres = movieDetailData.genres?.map { it?.name }
                         ?.joinToString(separator = ",")
 
                     movieDetailEntity.productionCountries =
