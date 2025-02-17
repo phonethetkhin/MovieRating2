@@ -23,6 +23,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CodigoCodeManagement"
+rootProject.name = "MovieRating2"
 include(":app")
  

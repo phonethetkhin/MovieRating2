@@ -12,11 +12,11 @@ val navVersion = "2.7.0"
 val retrofit_version = "2.9.0"
 val room_version = "2.5.2"
 android {
-    namespace = "com.ptk.codigocodemanagement"
+    namespace = "com.ptk.movierating2"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.ptk.codigocodemanagement"
+        applicationId = "com.ptk.movierating2"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
